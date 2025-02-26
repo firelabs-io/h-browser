@@ -22,7 +22,7 @@ class htmlpar:
                     atrval.append(line[j+2]) # i mean it works, i woulnt argue until breaks
                     j += 1
                 atributes[atrname] = atrval
-            elif token == '<' and line[i+1] != '/':
+            elif token == '<':
                 j = i + 1
                 tag = line[j]
                 print(tag)
@@ -54,9 +54,12 @@ class htmltok:
 if __name__ == '__main__':
     tok = htmltok()
     par = htmlpar()
-    tokens = tok.tokline("<p> hello </p>")
-    tokens2 = tok.tokline("<img src=\"image.png\" alt=\"image\"/>")
-    ast = par.evaLine(tokens)
-    ast2 = par.evaLine(tokens2)
-    print(tokens, ast)
-    print(tokens2, ast2)
+    filename = sys.argv[1]
+    program = []
+    with open(filename, 'r') as file:
+        for line in file:
+            program.append(line.strip())
+    tokens = tok.tokpro(program)
+    ast = par.evapro(tokens)
+    print(tokens)
+    print(ast)
