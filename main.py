@@ -2,13 +2,25 @@ import sys
 
 class htmlpar:
     def __init__(self):
-        ...
-    # make sure things are correct, also puts each tag and its atributes
-    # the atual will be added soon
+        self.index = 0
+    def buildom(self, pro):
+        if self.index >= len(pro):
+            return None
+        dom = []
+        while self.index < len(pro):
+            tag_dict = pro[self.index]
+            tag = list(tag_dict.keys())[0]
+            if tag == '/':
+                return dom
+            atributes, content = tag_dict[tag]
+            self.index += 1
+            children = self.buildom(pro)
+            dom.append({"tag": tag, "atributes": atributes, "content": content, "children": children})
     def evaLine(self, line):
         i = 0
         tag = None
         atributes = {}
+        content = []
         while i < len(line):
             token = line[i]
             if token == '=':
@@ -26,8 +38,11 @@ class htmlpar:
                 j = i + 1
                 tag = line[j]
                 print(tag)
+            else:
+                if line[i] not in '></':
+                    content.append(line[i])
             i += 1
-        return {tag: atributes}
+        return {tag: [atributes, content]}
     def evapro(self, pro):
         ast = [] # not ast real, just small
         for line in pro:
@@ -60,6 +75,5 @@ if __name__ == '__main__':
         for line in file:
             program.append(line.strip())
     tokens = tok.tokpro(program)
-    ast = par.evapro(tokens)
-    print(tokens)
-    print(ast)
+    dom = par.evapro(tokens)
+    print(par.buildom(dom))
