@@ -1,21 +1,22 @@
 import sys
+import render as r
+import time
 
 class htmlpar:
     def __init__(self):
-        self.index = 0
-    def buildom(self, pro):
-        if self.index >= len(pro):
-            return None
+        pass
+    def buildom(self, pro, index=0):
         dom = []
-        while self.index < len(pro):
-            tag_dict = pro[self.index]
+        while index < len(pro):
+            tag_dict = pro[index]
             tag = list(tag_dict.keys())[0]
             if tag == '/':
                 return dom
             atributes, content = tag_dict[tag]
-            self.index += 1
-            children = self.buildom(pro)
+            index += 1
+            children = self.buildom(pro, index)    
             dom.append({"tag": tag, "atributes": atributes, "content": content, "children": children})
+        return []
     def evaLine(self, line):
         i = 0
         tag = None
@@ -27,7 +28,7 @@ class htmlpar:
                 atrname = line[i-1]
                 atrval = []
                 j = i # skip the '"'
-                print(line[j+1])
+                #print(line[j+1])
                 while j < len(line):
                     if line[j] == '"':
                         break
@@ -35,11 +36,12 @@ class htmlpar:
                     j += 1
                 atributes[atrname] = atrval
             elif token == '<':
-                j = i + 1
+                j = i+2
                 tag = line[j]
-                print(tag)
+                #print(tag)
             else:
-                if line[i] not in '></':
+                #print(line[i])
+                if line[i] not in '></' and len(line) > i+1:
                     content.append(line[i])
             i += 1
         return {tag: [atributes, content]}
@@ -66,6 +68,23 @@ class htmltok:
         for line in program:
             tokens.append(self.tokline(line))
         return tokens
+    
+def render(root, dom):
+    for d in dom:  
+        if d['tag'] == 'head':
+            continue
+        if d['tag'] == 'p':
+            _ = "".join(d["content"])
+            r.pc(root, _)
+        elif d['tag'] == 'input':
+            r.inpc(root)
+        elif d['tag'] == 'h1':
+            _ = "".join(d["content"])
+            r.h1c(root, _)
+        
+        if len(d['children']) > 0:
+            for child in d['children']:
+                render(root, [child])  
 if __name__ == '__main__':
     tok = htmltok()
     par = htmlpar()
@@ -75,5 +94,11 @@ if __name__ == '__main__':
         for line in file:
             program.append(line.strip())
     tokens = tok.tokpro(program)
+    print(tokens)
     dom = par.evapro(tokens)
+    print(dom)
+    #root = r.initgui()
     print(par.buildom(dom))
+    #render(root, par.buildom(dom))
+    #r.loop(root)
+    
